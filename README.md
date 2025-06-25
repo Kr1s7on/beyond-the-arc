@@ -9,7 +9,7 @@
 
 it aims to cover the following:
 
-### mvp
+### mvp: just on chef curry
 
     - clean and prep shot data
     - visualize basic hot zones
