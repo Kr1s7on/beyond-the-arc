@@ -8651,8 +8651,8 @@ game_id,game_date,season,period,minutes_remaining,seconds_remaining,shot_distanc
 21600388,20161215,2016-17,1,6,9,26,-194,183,3PT Field Goal,Above the Break 3,Left Side Center(LC),24+ ft.,0,369,-46.67128597543733,True,early,False
 21600388,20161215,2016-17,2,11,35,4,24,43,2PT Field Goal,In The Paint (Non-RA),Center(C),Less Than 8 ft.,0,695,29.167613379577798,False,early,False
 21600388,20161215,2016-17,2,10,26,18,-97,154,2PT Field Goal,Mid-Range,Left Side Center(LC),16-24 ft.,0,626,-32.20560060923481,False,early,False
-21600388,20161215,2016-17,2,7,40,1,9,8,2PT Field Goal,Restricted Area,Center(C),Less Than 8 ft.,0,460,48.366460663429805,False,early,False
 21600388,20161215,2016-17,2,7,40,0,-1,2,2PT Field Goal,Restricted Area,Center(C),Less Than 8 ft.,0,460,-26.56505117707799,False,early,False
+21600388,20161215,2016-17,2,7,40,1,9,8,2PT Field Goal,Restricted Area,Center(C),Less Than 8 ft.,0,460,48.366460663429805,False,early,False
 21600388,20161215,2016-17,2,5,34,25,-186,169,3PT Field Goal,Above the Break 3,Left Side Center(LC),24+ ft.,1,334,-47.74164712296,True,early,False
 21600388,20161215,2016-17,2,3,13,29,-161,244,3PT Field Goal,Above the Break 3,Left Side Center(LC),24+ ft.,0,193,-33.418267954228995,True,early,False
 21600388,20161215,2016-17,2,2,23,23,230,16,3PT Field Goal,Right Corner 3,Right Side(R),24+ ft.,1,143,86.02061754732179,True,early,False
