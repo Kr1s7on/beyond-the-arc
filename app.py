@@ -4,6 +4,14 @@ import pickle
 import matplotlib.pyplot as plt
 from notebooks.court import draw_half_court
 
+# Streamlit page configuration
+st.set_page_config(
+    page_title="Curry Shot Predictor",
+    page_icon="🏀",
+    layout="centered",
+    initial_sidebar_state="expanded"
+)
+
 @st.cache_resource
 def load_model_data():
     df = pd.read_csv('data/processed/cleaned_curry_2009to25.csv')
@@ -24,7 +32,7 @@ This project predicts the prob% if Chef Curry will make a shot based on:
 
 Data was fetched from `nba_api` from 2009 to 2025 season
          
-(thank you mr swar patel)
+(thank you mr swar patel for the nba_api)
 
 Model: Random Forest Classifier
 """)
@@ -33,7 +41,7 @@ Model: Random Forest Classifier
 dist = st.slider("Shot distance", 0, 30, 15)
 angle = st.slider("Shot angle (°)", -90, 90, 0)
 time_rem = st.slider("Time remaining (s)", 0, 2880, 720)
-is_3pt = st.checkbox("3-point shot?")
+is_3pt = st.checkbox("3-point shot? `3pt = 23ft 9in | corner 3pt = 22ft`")
 is_clutch = st.checkbox("Clutch (<10s)?")
 
 # Predict
@@ -62,3 +70,15 @@ st.pyplot(fig)
 # Just for info
 st.write(f"Shot coordinates: ({x:.2f}, {y:.2f}) inches from hoop")
 st.write(f"Shot distance: {dist_in:.2f} inches")
+
+# Other stuff you can add in streamlit
+st.sidebar.header("about")
+st.sidebar.write("""
+this app predicts the probability of Steph Curry making a shot based on various factors.
+the model is trained on historical shot data from the NBA.
+""")
+
+# Author and GitHub repo link
+st.sidebar.markdown("---")
+st.sidebar.markdown("**created by:** kriston jomari")
+st.sidebar.markdown("**github repository:** [beyond-the-arc](https://github.com/Kr1s7on/beyond-the-arc)")
