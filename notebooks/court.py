@@ -26,7 +26,8 @@ def draw_half_court(ax=None, color='black', lw=2):
     # Three point line
     corner_three_a = Rectangle((-220, -47.5), 0, 140, linewidth=lw, color=color)
     corner_three_b = Rectangle((220, -47.5), 0, 140, linewidth=lw, color=color)
-    three_arc = Arc((0, 0), 475, 475, theta1=22, theta2=158, linewidth=lw, color=color)
+    # Lift the curved arc slightly while keeping corner lines in place.
+    three_arc = Arc((0, 12), 475, 475, theta1=22, theta2=158, linewidth=lw, color=color)
 
     # Center court arc (half court only, not shown here)
 
