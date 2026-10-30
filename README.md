@@ -9,9 +9,15 @@
 
 viewable [here](https://kr1s7on-beyond-the-arc-app-g7kvhn.streamlit.app/)
 
+note
+```bash
+pip install -r requirements.txt
+streamlit run app.py
+```
+
 it aims to cover the following:
 
-### mvp: just on chef curry (done)
+### mvp (done)
 
     - clean and prep shot data
     - visualize basic hot zones
