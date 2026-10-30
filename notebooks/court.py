@@ -24,8 +24,8 @@ def draw_half_court(ax=None, color='black', lw=2):
     restricted = Arc((0, 0), 80, 80, theta1=0, theta2=180, linewidth=lw, color=color)
 
     # Three point line
-    corner_three_a = Rectangle((-220, -47.5), 0, 140, linewidth=lw, color=color)
-    corner_three_b = Rectangle((220, -47.5), 0, 140, linewidth=lw, color=color)
+    corner_three_a = Rectangle((-220, -47.5), 0, 150, linewidth=lw, color=color)
+    corner_three_b = Rectangle((220, -47.5), 0, 150, linewidth=lw, color=color)
     # Lift the curved arc slightly while keeping corner lines in place.
     three_arc = Arc((0, 12), 475, 475, theta1=22, theta2=158, linewidth=lw, color=color)
 
@@ -39,7 +39,7 @@ def draw_half_court(ax=None, color='black', lw=2):
         ax.add_patch(element)
 
     # Set axis limits and hide axis
-    ax.set_xlim(-250, 250)
+    ax.set_xlim(-320, 320)
     ax.set_ylim(-47.5, 422.5)
     ax.axis('off')
 
