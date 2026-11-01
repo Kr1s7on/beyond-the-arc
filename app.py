@@ -159,3 +159,4 @@ This app predicts the probability of Steph Curry making a shot based on various 
 st.sidebar.markdown("---")
 st.sidebar.markdown("**Created by:** Kriston")
 st.sidebar.markdown("**Repository:** [beyond-the-arc](https://github.com/Kr1s7on/beyond-the-arc)")
+# mock commit
