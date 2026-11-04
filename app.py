@@ -2,7 +2,6 @@ import streamlit as st
 import pandas as pd, numpy as np
 import pickle
 import matplotlib.pyplot as plt
-from sklearn.ensemble import RandomForestClassifier
 from PIL import Image
 from pathlib import Path
 from notebooks.court import draw_half_court
@@ -15,33 +14,36 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
+# Features the model was trained on. The UI only collects 5 of them; the rest
+# are derived from those 5 or held at typical-game values.
+MODEL_FEATURES = [
+    'log_dist', 'abs_angle', 'time_frac', 'is_clutch', 'is_3pt', 'is_overtime',
+    'is_home', 'attempt_idx', 'attempt_frac', 'game_fg_sofar', 'game_3fg_sofar',
+    'days_rest', 'roll5_3fg', 'action_type', 'shot_zone_basic', 'period', 'opp',
+]
+
+DEFAULTS = {
+    'is_overtime': 0, 'is_home': 0, 'attempt_idx': 9, 'attempt_frac': 0.47,
+    'game_fg_sofar': 0.474, 'game_3fg_sofar': 0.422, 'days_rest': 2,
+    'roll5_3fg': 0.409, 'period': 3, 'opp': 'PHX',
+}
+
 @st.cache_resource
 def load_model_data():
     df = pd.read_csv('data/processed/cleaned_curry_2009to25.csv')
+    model_path = Path('models/curry_shot_model.pkl')
 
-    feature_names = ['shot_distance', 'shot_angle', 'time_remaining', 'is_3pt', 'is_clutch']
-    X = df[feature_names]
-    y = df['shot_made_flag']
+    with open(model_path, 'rb') as f:
+        header = f.read(64)
+        f.seek(0)
 
-    model_path = Path('models/rf_curry.pkl')
-    model_source = "pickle"
+        # Git LFS pointer files start with plain text, not pickle bytes.
+        if header.startswith(b"version https://git-lfs.github.com/spec/v1"):
+            raise ValueError("Model file is a Git LFS pointer, not a pickle binary.")
 
-    try:
-        with open(model_path, 'rb') as f:
-            header = f.read(64)
-            f.seek(0)
+        bundle = pickle.load(f)
 
-            # Git LFS pointer files start with plain text, not pickle bytes.
-            if header.startswith(b"version https://git-lfs.github.com/spec/v1"):
-                raise ValueError("Model file is a Git LFS pointer, not a pickle binary.")
-
-            model = pickle.load(f)
-    except Exception:
-        model = RandomForestClassifier(n_estimators=200, random_state=42)
-        model.fit(X, y)
-        model_source = "retrained_fallback"
-
-    return df, model, model_source
+    return df, bundle['model'], bundle['threshold']
 
 @st.cache_resource
 def load_marker_images():
@@ -57,14 +59,43 @@ def get_marker_view(angle_deg):
     # Shots near center lane use front view; wider side angles use side view.
     return "side" if abs(angle_deg) >= 30 else "front"
 
-df, model, model_source = load_model_data()
-marker_images = load_marker_images()
+def build_features(dist, angle, time_rem, is_3pt):
+    # derive shot zone and action type from distance + angle
+    abs_angle = abs(angle)
 
-if model_source == "retrained_fallback":
-    st.warning(
-        "`models/rf_curry.pkl` appears unavailable locally (likely Git LFS pointer). "
-        "Using an auto-trained fallback model from `data/processed/cleaned_curry_2009to25.csv`."
-    )
+    if is_3pt:
+        if abs_angle >= 55 and dist <= 23.75:
+            zone = 'Left Corner 3' if angle < 0 else 'Right Corner 3'
+        else:
+            zone = 'Above the Break 3'
+    elif dist <= 4:
+        zone = 'Restricted Area'
+    elif dist <= 8:
+        zone = 'In The Paint (Non-RA)'
+    else:
+        zone = 'Mid-Range'
+
+    if is_3pt or dist >= 16:
+        action = 'Pullup Jump shot' if abs_angle >= 40 else 'Jump Shot'
+    elif dist <= 4:
+        action = 'Driving Layup Shot'
+    else:
+        action = 'Floating Jump shot'
+
+    row = {
+        'log_dist': np.log1p(dist),
+        'abs_angle': abs_angle,
+        'time_frac': time_rem / 720.0,
+        'is_clutch': int(time_rem < 10),  # derived from the time slider
+        'is_3pt': int(is_3pt),
+        'action_type': action,
+        'shot_zone_basic': zone,
+    }
+    row.update(DEFAULTS)
+    return pd.DataFrame([row])[MODEL_FEATURES]
+
+df, model, threshold = load_model_data()
+marker_images = load_marker_images()
 
 st.title("Steph Curry Shot Predictor")
 
@@ -74,11 +105,12 @@ This project predicts the prob% if Curry will make a shot based on:
 - Shot angle (°)
 - Time remaining (s)
 - 3-point shot?
-- Clutch situation (<10s left)
 
 Data was fetched from `nba_api` from 2009 to 2025 season
 
-Model: Random Forest Classifier
+Model: Gradient Boosting (shot type + location + form features)
+
+Clutch is derived automatically from the time slider (<10s left).
 """)
 
 # Side-by-side layout: controls on the left, chart on the right.
@@ -90,15 +122,13 @@ with controls_col:
     angle = st.slider("Shot angle (°)", -90, 90, 0)
     time_rem = st.slider("Time remaining (s)", 0, 2880, 720)
     is_3pt = st.checkbox("3-point shot? `3pt = 23ft 9in | corner 3pt = 22ft`")
-    is_clutch = st.checkbox("Clutch (<10s)?")
 
 # Predict
-feature_names = ['shot_distance', 'shot_angle', 'time_remaining', 'is_3pt', 'is_clutch']
-features_df = pd.DataFrame([[dist, angle, time_rem, int(is_3pt), int(is_clutch)]], columns=feature_names)
+features_df = build_features(dist, angle, time_rem, is_3pt)
 prob = model.predict_proba(features_df)[0,1]
 
-# Display probability with color
-color = "green" if prob >= 0.4 else "red"
+# Display probability with color (threshold tuned in the notebook)
+color = "green" if prob >= threshold else "red"
 with controls_col:
     st.markdown(
         f"<span style='font-size:2em;'>Probability of Make: <span style='color:{color};'><b>{prob:.2%}</b></span></span>",
