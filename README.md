@@ -21,7 +21,7 @@ it aims to cover the following:
 
     - clean and prep shot data
     - visualize basic hot zones
-    - build a basic shot success model (Logistic Regression or Random Forest)
+    - build a basic shot success model (Logistic Regression, Random Forest or gradient boosting)
     - share visuals and code cleanly (GitHub repo, notebooks)
 
 ### more depth (done)
@@ -30,15 +30,16 @@ once MVP is done:
 
     - add features like:
     - Shot angle, quarter, time left
+    - Shot type (action_type)
+    - Form and context features (home/away, rest days, recent FG%)
     - Player ID (group patterns)
-    - Tune model, try XGBoost
+    - Tune model and threshold, try XGBoost and gradient boosting
     - Add interactivity to visuals (e.g., with Tableau or Streamlit)
 
 ### exploratory (not done)
 
 if i have time:
 
-    - context features (e.g., dribbles, defender distance)
+    - tracking-data features (e.g., dribbles, defender distance)
     - deep learning (like using player movement)
     - animate shot charts (motion link)
-    - dashboards or story presentations
